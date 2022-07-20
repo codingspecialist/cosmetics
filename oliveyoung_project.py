@@ -29,8 +29,14 @@ driver = set_chrome_driver()
 search_keyword("수분크림")
 
 # 3. 격자형식에서 리스트 형식으로 보기
-wait(driver, 10).until(
-    EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.cate_align_box > div.type_sort > button.btn_list"))).click()
+while(True):
+    try:
+        wait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.cate_align_box > div.type_sort > button.btn_list"))).click()
+        break
+    except:
+        print("3. 격자형식에서 리스트 형식으로 보기 오류")
+        pass
 
 # 4. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기
 while(True):
@@ -57,34 +63,42 @@ while(True):
 # 6. 제품주요사양, 제품이름, 성분 데이터 만들기 (딕셔너리)
 
 # 6-1 제품명
-name_el = wait(driver, 10).until(
-    EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.prd_detail_box.renew > div.right_area > div > p.prd_name")))
+while(True):
+    try:
+        name_el = wait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.prd_detail_box.renew > div.right_area > div > p.prd_name")))
+        print(name_el.text)
+        break
+    except:
+        print("6-1 제품명 오류")
+        pass
 
-print(name_el.text)
 
 # 6-2 제품주요사양
-type_el = wait(driver, 10).until(
-    EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(2) > dd")))
+while(True):
+    try:
+        type_el = wait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(2) > dd")))
+        print(type_el.text)
+        break
+    except:
+        print("6-2 제품주요사양 오류")
+        pass
 
-print(type_el.text)
 
 # 6-3 모든 성분
-sungbun_el = wait(driver, 10).until(
-    EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(7) > dd")))
+while(True):
+    try:
+        sungbun_el = wait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(7) > dd")))
+        sungbun_text = sungbun_el.text.replace(" ", "")
+        sungbun_list = sungbun_text.split(",")
+        print(sungbun_list)
+        break
+    except:
+        print("6-3 모든 성분 오류")
+        pass
 
-sungbun_text = sungbun_el.text.replace(" ", "")
-
-sungbun_list = sungbun_text.split(",")
-print(sungbun_list)
 
 # 7. 뒤로가기
 driver.back()
-
-# item = wait(driver, 10).until(
-#     EC.element_to_be_clickable((By.CSS_SELECTOR, "#w_cate_prd_list > li:nth-child(1) > div > a")))
-
-# item.click()
-
-
-# driver.find_element()
-# driver.back()

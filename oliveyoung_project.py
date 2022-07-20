@@ -15,6 +15,7 @@ import time
 # firstTotalCount = 202 (전체 개수)
 # sort = RNK/DESC (인기순)
 # sort = SALE_QTY/DESC (판매량순)
+# #w_cate_prd_list 4개씩 있음. 총 12개
 
 startCount = 0
 firstTotalCount = 0

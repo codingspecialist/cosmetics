@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait as wait
 from selenium.webdriver.support import expected_conditions as EC
 from urllib.parse import parse_qs, urlparse
 import time
+import math
 
 # https://www.google.com/intl/ko/chrome/beta/
 # https://chromedriver.chromium.org/downloads
@@ -20,24 +21,27 @@ import time
 startCount = 0
 firstTotalCount = 0
 sort = "RNK/DESC"
+totalPageCount = 0
+pageItemCount = 48
+list = []
 
-
-# def set_chrome_driver():
-#     chrome_options = webdriver.ChromeOptions()
-#     chrome_options.add_experimental_option(
-#         "excludeSwitches", ["enable-logging"])
-#     driver = webdriver.Chrome(service=Service(
-#         ChromeDriverManager().install()), options=chrome_options)
-#     return driver
 
 def set_chrome_driver():
-    chrome_driver_path = "C:/workspace/ks_lab/chromedriver_win32/chromedriver.exe"
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = "C:/Program Files/Google/Chrome Beta/Application/chrome.exe"
     chrome_options.add_experimental_option(
         "excludeSwitches", ["enable-logging"])
-    driver = webdriver.Chrome(chrome_driver_path, options=chrome_options)
+    driver = webdriver.Chrome(service=Service(
+        ChromeDriverManager().install()), options=chrome_options)
     return driver
+
+# def set_chrome_driver():
+#     chrome_driver_path = "C:/workspace/ks_lab/chromedriver_win32/chromedriver.exe"
+#     chrome_options = webdriver.ChromeOptions()
+#     chrome_options.binary_location = "C:/Program Files/Google/Chrome Beta/Application/chrome.exe"
+#     chrome_options.add_experimental_option(
+#         "excludeSwitches", ["enable-logging"])
+#     driver = webdriver.Chrome(chrome_driver_path, options=chrome_options)
+#     return driver
 
 
 def search_keyword(keyword):
@@ -48,6 +52,7 @@ def search_keyword(keyword):
 
 def convert_48():
     global firstTotalCount
+    global totalPageCount
     while(True):
         try:
             wait(driver, 10).until(
@@ -55,17 +60,18 @@ def convert_48():
             url = urlparse(driver.current_url)
             qs = parse_qs(url.query)
             firstTotalCount = int(qs["firstTotalCount"][0])
+            totalPageCount = math.ceil(firstTotalCount/pageItemCount)
             break
         except Exception as e:
             print("3. view 48로 변경 오류")
             print(e)
 
 
-def detail_view():
+def detail_view(outer_num, inner_num):
     while(True):
         try:
             wait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "#ajaxList > ul:nth-child(1) > li:nth-child(1) a"))).click()
+                EC.element_to_be_clickable((By.CSS_SELECTOR, f"#ajaxList > ul:nth-child({outer_num}) > li:nth-child({inner_num}) a"))).click()
             break
         except Exception as e:
             print("4. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기 오류")
@@ -89,8 +95,7 @@ def craw_name():
         try:
             name_el = wait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.prd_detail_box.renew > div.right_area > div > p.prd_name")))
-            print(name_el.text)
-            break
+            return name_el.text
         except Exception as e:
             print("6-1 제품명 오류")
             print(e)
@@ -101,8 +106,7 @@ def craw_type():
         try:
             type_el = wait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(2) > dd")))
-            print(type_el.text)
-            break
+            return type_el.text
         except Exception as e:
             print("6-2 제품주요사양 오류")
             print(e)
@@ -115,11 +119,19 @@ def craw_sungbun():
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(7) > dd")))
             sungbun_text = sungbun_el.text.replace(" ", "")
             sungbun_list = sungbun_text.split(",")
-            print(sungbun_list)
-            break
+            return sungbun_list
         except Exception as e:
             print("6-3 모든 성분 오류")
             print(e)
+
+
+def craw_data():
+    data = {
+        "name": craw_name(),
+        "type": craw_type(),
+        "sungbun": craw_sungbun()
+    }
+    return data
 
 
 # 1. 크롬 브라우저 열기
@@ -131,22 +143,20 @@ search_keyword("수분크림")
 # 3. view 48로 변경 후 firstTotalCount 확인하기
 convert_48()
 
-# 4. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기
-detail_view()
+# 5. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기
+for i in range(1, 12):
+    for k in range(1, 4):
+        detail_view(i, k)
 
-# 5. 구매정보 클릭하기
-buy_info()
+        # 6. 구매정보 클릭하기
+        buy_info()
 
-# 6. 제품주요사양, 제품이름, 성분 데이터 만들기 (딕셔너리)
+        # 7. 제품주요사양, 제품이름, 성분 데이터 만들기 (딕셔너리)
+        data = craw_data()
+        list.append(data)
 
-# 6-1 제품명
-craw_name()
+        # 8. 뒤로가기
+        driver.back()
 
-# 6-2 제품주요사양
-craw_type()
-
-# 6-3 모든 성분
-craw_sungbun()
-
-# 7. 뒤로가기
-driver.back()
+print(f"list의 크기 : {len(list)}")
+print(list)

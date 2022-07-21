@@ -19,7 +19,7 @@ import time
 
 startCount = 0
 firstTotalCount = 0
-sort = "SALE_QTY/DESC"
+sort = "RNK/DESC"
 
 
 # def set_chrome_driver():
@@ -46,6 +46,82 @@ def search_keyword(keyword):
     driver.implicitly_wait(3)
 
 
+def convert_48():
+    global firstTotalCount
+    while(True):
+        try:
+            wait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.cate_align_box > div.count_sort.tx_num > ul > li:nth-child(3) > a"))).click()
+            url = urlparse(driver.current_url)
+            qs = parse_qs(url.query)
+            firstTotalCount = int(qs["firstTotalCount"][0])
+            break
+        except Exception as e:
+            print("3. view 48로 변경 오류")
+            print(e)
+
+
+def detail_view():
+    while(True):
+        try:
+            wait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#ajaxList > ul:nth-child(1) > li:nth-child(1) a"))).click()
+            break
+        except Exception as e:
+            print("4. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기 오류")
+            print(e)
+
+
+def buy_info():
+    time.sleep(1)  # 구매정보 클릭전에 페이지 로드가 한번씩 늦어서 1초 쉬어주자!
+    while(True):
+        try:
+            wait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#buyInfo > a"))).click()
+            break
+        except Exception as e:
+            print("5. 구매정보 클릭시 오류")
+            print(e)
+
+
+def craw_name():
+    while(True):
+        try:
+            name_el = wait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.prd_detail_box.renew > div.right_area > div > p.prd_name")))
+            print(name_el.text)
+            break
+        except Exception as e:
+            print("6-1 제품명 오류")
+            print(e)
+
+
+def craw_type():
+    while(True):
+        try:
+            type_el = wait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(2) > dd")))
+            print(type_el.text)
+            break
+        except Exception as e:
+            print("6-2 제품주요사양 오류")
+            print(e)
+
+
+def craw_sungbun():
+    while(True):
+        try:
+            sungbun_el = wait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(7) > dd")))
+            sungbun_text = sungbun_el.text.replace(" ", "")
+            sungbun_list = sungbun_text.split(",")
+            print(sungbun_list)
+            break
+        except Exception as e:
+            print("6-3 모든 성분 오류")
+            print(e)
+
+
 # 1. 크롬 브라우저 열기
 driver = set_chrome_driver()
 
@@ -53,80 +129,24 @@ driver = set_chrome_driver()
 search_keyword("수분크림")
 
 # 3. view 48로 변경 후 firstTotalCount 확인하기
-while(True):
-    try:
-        wait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.cate_align_box > div.count_sort.tx_num > ul > li:nth-child(3) > a"))).click()
-        url = urlparse(driver.current_url)
-        qs = parse_qs(url.query)
-        firstTotalCount = int(qs["firstTotalCount"][0])
-        break
-    except Exception as e:
-        print("3. view 48로 변경 오류")
-        print(e)
+convert_48()
 
 # 4. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기
-while(True):
-    try:
-        wait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#ajaxList > ul:nth-child(1) > li:nth-child(1) a"))).click()
-        break
-    except Exception as e:
-        print("4. #ajaxList 1~12번 ul에 1~4번 li에 a 찾아서 클릭하기 오류")
-        print(e)
-
+detail_view()
 
 # 5. 구매정보 클릭하기
-time.sleep(0.1)  # 구매정보 클릭전에 페이지 로드가 한번씩 늦어서 0.1초 쉬어주자!
-while(True):
-    try:
-        wait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#buyInfo > a"))).click()
-        break
-    except Exception as e:
-        print("5. 구매정보 클릭시 오류")
-        print(e)
-
+buy_info()
 
 # 6. 제품주요사양, 제품이름, 성분 데이터 만들기 (딕셔너리)
 
 # 6-1 제품명
-while(True):
-    try:
-        name_el = wait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#Contents > div.prd_detail_box.renew > div.right_area > div > p.prd_name")))
-        print(name_el.text)
-        break
-    except Exception as e:
-        print("6-1 제품명 오류")
-        print(e)
-
+craw_name()
 
 # 6-2 제품주요사양
-while(True):
-    try:
-        type_el = wait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(2) > dd")))
-        print(type_el.text)
-        break
-    except Exception as e:
-        print("6-2 제품주요사양 오류")
-        print(e)
-
+craw_type()
 
 # 6-3 모든 성분
-while(True):
-    try:
-        sungbun_el = wait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(7) > dd")))
-        sungbun_text = sungbun_el.text.replace(" ", "")
-        sungbun_list = sungbun_text.split(",")
-        print(sungbun_list)
-        break
-    except Exception as e:
-        print("6-3 모든 성분 오류")
-        print(e)
-
+craw_sungbun()
 
 # 7. 뒤로가기
 driver.back()

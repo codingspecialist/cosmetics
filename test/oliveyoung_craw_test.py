@@ -109,7 +109,7 @@ def craw_sungbun():
         try:
             tryCount = tryCount + 1
             sungbun_el = wait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(7) > dd")))
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "#artcInfo > dl:nth-child(8) > dd")))
             sungbun_text = sungbun_el.text.replace(" ", "")
             sungbun_list = sungbun_text.split(",")
             sungbun_list.sort()
